@@ -5,7 +5,7 @@ spring:
         connection-string: "Endpoint=sb://localhost/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=local-emulator-key"
     stream:
       bindings:
-        output-out-0:  # Match the binding used in your controller
+        output:  # Match the binding used in your controller
           destination: queue.1
           binder: servicebus
       binders:

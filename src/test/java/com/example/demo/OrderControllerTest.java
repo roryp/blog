@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,72 +17,55 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.containers.BindMode;
+import org.springframework.cloud.stream.function.StreamBridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = DemoApplication.class, properties = {
-    "spring.cloud.azure.servicebus.connection-string=amqp://localhost:5672/sbemulatorns",
-    "spring.cloud.stream.bindings.output.destination=queue.1",
-    "spring.cloud.stream.binders.servicebus.type=servicebus"
-})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = DemoApplication.class)
 public class OrderControllerTest {
 
-    // Azure Service Bus Emulator TestContainer with custom configuration
     @Container
-    public static final GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1")
-            .withExposedPorts(5672) // Expose AMQP port
-            .withFileSystemBind("./src/test/resources/service-bus-config.json", "/config/service-bus-config.json", BindMode.READ_ONLY) // Mount JSON config
-            .withCommand("--config /config/service-bus-config.json") // Use config
+    public static GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1")
+            .withExposedPorts(5672)
+            .withFileSystemBind("./src/test/resources/service-bus-config.json", "/config/service-bus-config.json", BindMode.READ_ONLY)
+            .withCommand("--config /config/service-bus-config.json")
             .waitingFor(Wait.forListeningPort());
 
     @Autowired
     private TestRestTemplate restTemplate;
 
-    // Registering the Azure Service Bus connection string with correct namespace
-      @DynamicPropertySource
+    @MockBean
+    private StreamBridge streamBridge;
+
+    @DynamicPropertySource
     static void registerAzureServiceBusProperties(DynamicPropertyRegistry registry) {
-        String host = azureServiceBusEmulator.getHost();
-        int port = azureServiceBusEmulator.getMappedPort(5672);
-    
-        // Use "sbemulatorns" as defined in the JSON config
-        String serviceBusConnectionString = String.format(
+        registry.add("spring.cloud.azure.servicebus.connection-string", () -> String.format(
             "Endpoint=sb://%s:%d/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=local-emulator-key",
-            host, port
-        );
-    
-        registry.add("spring.cloud.azure.servicebus.connection-string", () -> serviceBusConnectionString);
+            azureServiceBusEmulator.getHost(), azureServiceBusEmulator.getMappedPort(5672)
+        ));
     }
     
     @Test
     public void testPlaceOrder() {
-        Order order = new Order();
-        order.setId("1");
-        order.setProduct("Product A");
-        order.setQuantity(10);
-        order.setPrice(100.0);
+        // Ensure the emulator is running
+        assertThat(azureServiceBusEmulator.isRunning()).isTrue();
 
+        Order order = new Order("1", "Product A", 10, 100.0);
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<Order> request = new HttpEntity<>(order, headers);
 
+        // Mock StreamBridge to return true when sending messages
+        when(streamBridge.send("output", order)).thenReturn(true);
+
         ResponseEntity<String> response = restTemplate.exchange("/orders", HttpMethod.POST, request, String.class);
 
+        // Assertions
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isEqualTo("Order placed successfully");
-    }
+        assertThat(response.getBody()).contains("Order placed successfully");
 
-    @Test
-    void contextLoads() {
-        String host = azureServiceBusEmulator.getHost();
-        int port = azureServiceBusEmulator.getMappedPort(5672);
-
-        // Ensure emulator is running
-        String serviceBusConnectionString = String.format(
-            "amqp://%s:%d/sbemulatorns",
-            host, port
-        );
-
-        assertThat(serviceBusConnectionString).isNotNull();
-        System.out.println("✅ Service Bus connection string is valid: " + serviceBusConnectionString);
+        // Verify that StreamBridge was called
+        verify(streamBridge, times(1)).send("output", order);
     }
 }

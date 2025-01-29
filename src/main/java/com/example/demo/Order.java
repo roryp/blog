@@ -6,6 +6,18 @@ public class Order {
     private int quantity;
     private double price;
 
+    // Default constructor (needed for serialization/deserialization)
+    public Order() {
+    }
+
+    // Constructor matching test usage
+    public Order(String id, String product, int quantity, double price) {
+        this.id = id;
+        this.product = product;
+        this.quantity = quantity;
+        this.price = price;
+    }
+
     public String getId() {
         return id;
     }
