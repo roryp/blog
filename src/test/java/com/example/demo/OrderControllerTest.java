@@ -14,6 +14,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,22 +23,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class OrderControllerTest {
 
+    // Azure Service Bus Emulator TestContainer with custom configuration
     @Container
-    public static final GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1") // <-- Removed extra space
-            .withExposedPorts(5672)
+    public static final GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1")
+            .withExposedPorts(5672) // Expose the correct AMQP port
+            .withFileSystemBind("./sbemulator-config.json", "/config/sbemulator-config.json", BindMode.READ_ONLY) // Mount JSON config
+            .withCommand("--config /config/sbemulator-config.json") // Use the custom config file
             .waitingFor(Wait.forListeningPort());
 
     @Autowired
     private TestRestTemplate restTemplate;
 
+    // Registering the Azure Service Bus connection string with correct namespace
     @DynamicPropertySource
     static void registerAzureServiceBusProperties(DynamicPropertyRegistry registry) {
         String host = azureServiceBusEmulator.getHost();
         int port = azureServiceBusEmulator.getMappedPort(5672);
 
-        // Fix: Using AMQP protocol for local testing
+        // Use "sbemulatorns" as defined in the JSON config
         String serviceBusConnectionString = String.format(
-            "amqp://%s:%d",
+            "amqp://%s:%d/sbemulatorns",
             host, port
         );
 
