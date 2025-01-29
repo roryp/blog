@@ -32,7 +32,7 @@ public class OrderControllerTest {
 
     @DynamicPropertySource
     static void registerAzureServiceBusProperties(DynamicPropertyRegistry registry) {
-        String serviceBusConnectionString = String.format("Endpoint=sb://%s;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=your_access_key",
+        String serviceBusConnectionString = String.format("Endpoint=sb://%s/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=your_access_key",
                 azureServiceBusEmulator.getHost() + ":" + azureServiceBusEmulator.getMappedPort(5672));
         registry.add("spring.cloud.azure.servicebus.connection-string", () -> serviceBusConnectionString);
     }
