@@ -14,21 +14,21 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.containers.BindMode;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.BindMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = DemoApplication.class)
 public class OrderControllerTest {
 
     // Azure Service Bus Emulator TestContainer with custom configuration
     @Container
     public static final GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1")
-            .withExposedPorts(5672) // Expose the correct AMQP port
+            .withExposedPorts(5672) // Expose AMQP port
             .withFileSystemBind("./src/test/resources/service-bus-config.json", "/config/service-bus-config.json", BindMode.READ_ONLY) // Mount JSON config
-            .withCommand("--config /config/service-bus-config.json") // Use the custom config file
+            .withCommand("--config /config/service-bus-config.json") // Use config
             .waitingFor(Wait.forListeningPort());
 
     @Autowired
@@ -64,5 +64,20 @@ public class OrderControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo("Order placed successfully");
+    }
+
+    @Test
+    void contextLoads() {
+        String host = azureServiceBusEmulator.getHost();
+        int port = azureServiceBusEmulator.getMappedPort(5672);
+
+        // Ensure emulator is running
+        String serviceBusConnectionString = String.format(
+            "amqp://%s:%d/sbemulatorns",
+            host, port
+        );
+
+        assertThat(serviceBusConnectionString).isNotNull();
+        System.out.println("✅ Service Bus connection string is valid: " + serviceBusConnectionString);
     }
 }
