@@ -39,20 +39,20 @@ public class OrderControllerTest {
     private TestRestTemplate restTemplate;
 
     // Registering the Azure Service Bus connection string with correct namespace
-    @DynamicPropertySource
+      @DynamicPropertySource
     static void registerAzureServiceBusProperties(DynamicPropertyRegistry registry) {
         String host = azureServiceBusEmulator.getHost();
         int port = azureServiceBusEmulator.getMappedPort(5672);
-
+    
         // Use "sbemulatorns" as defined in the JSON config
         String serviceBusConnectionString = String.format(
-            "amqp://%s:%d/sbemulatorns",
+            "Endpoint=sb://%s:%d/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=local-emulator-key",
             host, port
         );
-
+    
         registry.add("spring.cloud.azure.servicebus.connection-string", () -> serviceBusConnectionString);
     }
-
+    
     @Test
     public void testPlaceOrder() {
         Order order = new Order();

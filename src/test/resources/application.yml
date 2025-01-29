@@ -13,3 +13,8 @@ spring:
           type: servicebus
   main:
     allow-bean-definition-overriding: true
+logging:
+  level:
+    root: INFO
+    com.azure: WARN
+    org.springframework: WARN
