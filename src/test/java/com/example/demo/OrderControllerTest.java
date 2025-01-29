@@ -27,8 +27,8 @@ public class OrderControllerTest {
     @Container
     public static final GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1")
             .withExposedPorts(5672) // Expose the correct AMQP port
-            .withFileSystemBind("./sbemulator-config.json", "/config/sbemulator-config.json", BindMode.READ_ONLY) // Mount JSON config
-            .withCommand("--config /config/sbemulator-config.json") // Use the custom config file
+            .withFileSystemBind("./src/test/resources/service-bus-config.json", "/config/service-bus-config.json", BindMode.READ_ONLY) // Mount JSON config
+            .withCommand("--config /config/service-bus-config.json") // Use the custom config file
             .waitingFor(Wait.forListeningPort());
 
     @Autowired
