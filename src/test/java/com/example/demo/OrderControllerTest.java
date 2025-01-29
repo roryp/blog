@@ -23,8 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OrderControllerTest {
 
     @Container
-    public static GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-service-bus/emulator:1.0.1\r\n" + //
-                "")
+    public static GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-service-bus/emulator:latest")
             .withExposedPorts(5672)
             .waitingFor(Wait.forListeningPort());
 
