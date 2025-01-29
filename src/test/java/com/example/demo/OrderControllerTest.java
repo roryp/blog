@@ -20,7 +20,11 @@ import org.testcontainers.containers.BindMode;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = DemoApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = DemoApplication.class, properties = {
+    "spring.cloud.azure.servicebus.connection-string=amqp://localhost:5672/sbemulatorns",
+    "spring.cloud.stream.bindings.output.destination=queue.1",
+    "spring.cloud.stream.binders.servicebus.type=servicebus"
+})
 public class OrderControllerTest {
 
     // Azure Service Bus Emulator TestContainer with custom configuration

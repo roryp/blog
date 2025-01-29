@@ -1,0 +1,13 @@
+spring:
+  cloud:
+    azure:
+      servicebus:
+        connection-string: amqp://localhost:5672/sbemulatorns # ✅ Ensure this matches the emulator config
+    stream:
+      bindings:
+        output:
+          destination: queue.1  # ✅ Ensure this matches `service-bus-config.json`
+          binder: servicebus
+      binders:
+        servicebus:
+          type: servicebus

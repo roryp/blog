@@ -1,22 +1,26 @@
 package com.example.demo;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.function.StreamBridge;
-import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/orders")
 public class OrderController {
 
-    @Autowired
-    private StreamBridge streamBridge;
+    private final StreamBridge streamBridge;
 
-    @PostMapping("/orders")
+    public OrderController(StreamBridge streamBridge) {
+        this.streamBridge = streamBridge;
+    }
+
+    @PostMapping
     public String placeOrder(@RequestBody Order order) {
-        // Send the order event to the Azure Service Bus queue
-        streamBridge.send("orders-out-0", MessageBuilder.withPayload(order).build());
+        // ✅ Send order to Azure Service Bus Queue
+        boolean sent = streamBridge.send("output", order);
+
+        if (!sent) {
+            throw new RuntimeException("Failed to send message");
+        }
         return "Order placed successfully";
     }
 }

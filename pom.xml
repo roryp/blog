@@ -51,6 +51,12 @@
         <version>1.16.0</version>
         <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>com.azure.spring</groupId>
+        <artifactId>spring-cloud-azure-stream-binder-servicebus</artifactId>
+        <version>5.19.0</version>
+    </dependency>
+
         <!-- Testcontainers for Azure -->
         <dependency>
             <groupId>org.testcontainers</groupId>
