@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OrderControllerTest {
 
     @Container
-    public static final GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-service-bus/emulator:latest")
+    public static final GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1 ")
             .withExposedPorts(5672)
             .waitingFor(Wait.forListeningPort());
 
@@ -32,8 +32,14 @@ public class OrderControllerTest {
 
     @DynamicPropertySource
     static void registerAzureServiceBusProperties(DynamicPropertyRegistry registry) {
-        String serviceBusConnectionString = String.format("Endpoint=sb://%s/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=your_access_key",
-                azureServiceBusEmulator.getHost() + ":" + azureServiceBusEmulator.getMappedPort(5672));
+        String host = azureServiceBusEmulator.getHost();
+        int port = azureServiceBusEmulator.getMappedPort(5672);
+
+        String serviceBusConnectionString = String.format(
+            "Endpoint=sb://%s/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=your_access_key",
+            host
+        );
+
         registry.add("spring.cloud.azure.servicebus.connection-string", () -> serviceBusConnectionString);
     }
 
