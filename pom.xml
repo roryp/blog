@@ -13,7 +13,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
 
     <properties>
@@ -45,31 +45,20 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-stream</artifactId>
         </dependency>
-    <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>1.16.0</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>com.azure.spring</groupId>
-        <artifactId>spring-cloud-azure-stream-binder-servicebus</artifactId>
-        <version>5.19.0</version>
-    </dependency>
 
-        <!-- Testcontainers for Azure -->
+        <!-- Azure Service Bus Binder -->
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>azure</artifactId>
-            <scope>test</scope>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-stream-binder-servicebus</artifactId>
+            <version>5.19.0</version>
         </dependency>
 
-
-        <!-- Azure Messaging Service Bus -->
+        <!-- Testcontainers -->
         <dependency>
-            <groupId>com.azure</groupId>
-            <artifactId>azure-messaging-servicebus</artifactId>
-            <version>7.5.0</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.20.0</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Spring Boot Test Starter -->
@@ -77,6 +66,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mockito</groupId>
+                    <artifactId>mockito-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
