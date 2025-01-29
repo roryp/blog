@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OrderControllerTest {
 
     @Container
-    public static final GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1")
+    public static final GenericContainer<?> azureServiceBusEmulator = new GenericContainer<>("mcr.microsoft.com/azure-messaging/servicebus-emulator:1.0.1") // <-- Removed extra space
             .withExposedPorts(5672)
             .waitingFor(Wait.forListeningPort());
 
@@ -35,9 +35,10 @@ public class OrderControllerTest {
         String host = azureServiceBusEmulator.getHost();
         int port = azureServiceBusEmulator.getMappedPort(5672);
 
+        // Fix: Using AMQP protocol for local testing
         String serviceBusConnectionString = String.format(
-            "Endpoint=sb://%s/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=your_access_key",
-            host
+            "amqp://%s:%d",
+            host, port
         );
 
         registry.add("spring.cloud.azure.servicebus.connection-string", () -> serviceBusConnectionString);
