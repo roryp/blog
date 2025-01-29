@@ -46,26 +46,24 @@ public class OrderControllerTest {
             azureServiceBusEmulator.getHost(), azureServiceBusEmulator.getMappedPort(5672)
         ));
     }
-    
+
     @Test
     public void testPlaceOrder() {
-        // Ensure the emulator is running
+        // Verify that the Testcontainer is running
         assertThat(azureServiceBusEmulator.isRunning()).isTrue();
 
+        // Mock the behavior of StreamBridge
         Order order = new Order("1", "Product A", 10, 100.0);
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity<Order> request = new HttpEntity<>(order, headers);
-
-        // Mock StreamBridge to return true when sending messages
         when(streamBridge.send("output", order)).thenReturn(true);
 
+        // Perform the API call
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<Order> request = new HttpEntity<>(order, headers);
         ResponseEntity<String> response = restTemplate.exchange("/orders", HttpMethod.POST, request, String.class);
 
-        // Assertions
+        // Verify response and StreamBridge interaction
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).contains("Order placed successfully");
-
-        // Verify that StreamBridge was called
         verify(streamBridge, times(1)).send("output", order);
     }
 }
