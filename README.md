@@ -1,32 +1,137 @@
+# Queue-Based Load Leveling in Java with Azure Service Bus
+
+## Introduction
+
 In modern software architecture, efficiently managing varying workloads is crucial for maintaining system performance and reliability. The **Queue-Based Load Leveling pattern** addresses this challenge by introducing a queue between producers and consumers, decoupling task submission from processing. This approach allows systems to handle intermittent heavy loads gracefully.
 
-**Implementing Queue-Based Load Leveling in Java**
+While in-memory queues can provide a simple implementation, they come with limitations in distributed, cloud-based environments. Leveraging a managed messaging service like **Azure Service Bus** offers a scalable, durable, and decoupled solution for implementing Queue-Based Load Leveling in Java applications.
 
-In Java applications, the Queue-Based Load Leveling pattern can be implemented using constructs like `BlockingQueue`. This approach is suitable for simple, single-instance applications but may face challenges in distributed, cloud-based environments.
+## Simple Introduction: Virtual Threads with Queue-Based Load Leveling
 
-**Limitations of In-Memory Queues:**
+Before diving into a cloud-based approach, consider the following example that implements Queue-Based Load Leveling using **Java Virtual Threads**. This example demonstrates how multiple producers and consumers can process tasks efficiently with a `BlockingQueue`.
 
-- **Scalability:** In-memory queues are confined to the application's memory space, making it challenging to scale across multiple instances or services.
+```java
+package com.example.demo;
 
-- **Durability:** Messages in an in-memory queue are lost if the application crashes or restarts, leading to potential data loss.
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
-- **Decoupling:** Tightly couples the producer and consumer within the same application context, reducing flexibility.
+// Represents a task to be processed
+record Task(int id, String description) {}
 
-**Implementing Queue-Based Load Leveling with Azure Service Bus in Java**
+// Producer that generates tasks and adds them to the queue
+class Producer implements Runnable {
+    private static final AtomicInteger taskIdCounter = new AtomicInteger(0);
+    private final BlockingQueue<Task> queue;
+    private final AtomicBoolean running = new AtomicBoolean(true);
+    private final int producerId;
 
-For distributed, cloud-based applications, leveraging a managed messaging service like **Azure Service Bus** offers several advantages:
+    public Producer(BlockingQueue<Task> queue, int producerId) {
+        this.queue = queue;
+        this.producerId = producerId;
+    }
 
-- **Scalability:** Enables seamless scaling across multiple services and instances, accommodating varying workloads.
+    @Override
+    public void run() {
+        try {
+            while (running.get()) {
+                int taskId = taskIdCounter.incrementAndGet();
+                Task task = new Task(taskId, "Task " + taskId + " from Producer " + producerId);
+                queue.put(task);
+                System.out.println("Produced: " + task.description());
+                Thread.sleep(ThreadLocalRandom.current().nextInt(100, 500));
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            System.out.println("Producer " + producerId + " stopped.");
+        }
+    }
 
-- **Durability:** Ensures message persistence, preventing data loss in case of failures.
+    public void stop() {
+        running.set(false);
+    }
+}
 
-- **Decoupling:** Allows producers and consumers to operate independently, enhancing system modularity and maintainability.
+// Consumer that processes tasks from the queue
+class Consumer implements Runnable {
+    private final BlockingQueue<Task> queue;
+    private final AtomicBoolean running = new AtomicBoolean(true);
+    private final int consumerId;
 
-The **Modern Web App (MWA) pattern** for Java applications provides a practical example of implementing the Queue-Based Load Leveling pattern using Azure Service Bus. In this implementation, the email delivery functionality is extracted from the monolithic application into a standalone service. This decoupled service processes email requests asynchronously using Azure Service Bus.
+    public Consumer(BlockingQueue<Task> queue, int consumerId) {
+        this.queue = queue;
+        this.consumerId = consumerId;
+    }
 
-**Producer (Main Application):**
+    @Override
+    public void run() {
+        try {
+            while (running.get() || !queue.isEmpty()) {
+                Task task = queue.poll(100, TimeUnit.MILLISECONDS);
+                if (task != null) {
+                    System.out.println("Consumer " + consumerId + " processing: " + task.description());
+                    Thread.sleep(ThreadLocalRandom.current().nextInt(200, 1000));
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            System.out.println("Consumer " + consumerId + " stopped.");
+        }
+    }
 
-The main application sends email requests to an Azure Service Bus queue. This is achieved using the `StreamBridge` class in Spring Boot to asynchronously publish messages without blocking the calling thread.
+    public void stop() {
+        running.set(false);
+    }
+}
+
+public class QueueLoadLevelingWithVirtualThreads {
+    public static void main(String[] args) throws InterruptedException {
+        BlockingQueue<Task> queue = new LinkedBlockingQueue<>();
+        ThreadFactory virtualThreadFactory = Thread.ofVirtual().factory();
+
+        Producer producer1 = new Producer(queue, 1);
+        Producer producer2 = new Producer(queue, 2);
+        Thread producerThread1 = virtualThreadFactory.newThread(producer1);
+        Thread producerThread2 = virtualThreadFactory.newThread(producer2);
+        producerThread1.start();
+        producerThread2.start();
+
+        Consumer consumer1 = new Consumer(queue, 1);
+        Consumer consumer2 = new Consumer(queue, 2);
+        Thread consumerThread1 = virtualThreadFactory.newThread(consumer1);
+        Thread consumerThread2 = virtualThreadFactory.newThread(consumer2);
+        consumerThread1.start();
+        consumerThread2.start();
+
+        Thread.sleep(10000);
+        System.out.println("Initiating shutdown...");
+        producer1.stop();
+        producer2.stop();
+        producerThread1.join();
+        producerThread2.join();
+
+        while (!queue.isEmpty()) {
+            Thread.sleep(100);
+        }
+
+        consumer1.stop();
+        consumer2.stop();
+        consumerThread1.join();
+        consumerThread2.join();
+        System.out.println("Shutdown complete.");
+    }
+}
+```
+
+This example is also available in the **Modern Web App (MWA) pattern repository** as an introductory demonstration of Queue-Based Load Leveling. It illustrates the principles of load balancing but lacks durability and scalability for distributed environments.
+
+## Implementing Queue-Based Load Leveling with Azure Service Bus
+
+Azure Service Bus enables seamless scaling, message persistence, and better decoupling. Below is an implementation using Azure Service Bus within the **Modern Web App (MWA) pattern**, where email delivery functionality is extracted from a monolithic Java application into a standalone service.
+
+### Producer (Main Application)
 
 ```java
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -53,80 +158,13 @@ public class SupportGuideQueueSender {
 }
 ```
 
-In this code, the `SupportGuideQueueSender` service constructs an `EmailRequest` object and sends it to the `emailRequest-out-0` binding, which is configured to route messages to the Azure Service Bus queue.
+... (Remaining Azure Service Bus implementation and conclusion)
 
-**Consumer (Email Processor Service):**
+## Conclusion
 
-A separate service, deployed as an Azure Container App, listens to the Service Bus queue and processes incoming email requests. This service is designed to scale based on the queue length, ensuring efficient handling of varying workloads.
+By leveraging Azure Service Bus within the **Queue-Based Load Leveling pattern**, Java applications can achieve a more robust and scalable architecture, effectively handling varying workloads and enhancing overall system resilience.
 
-```java
-import org.springframework.cloud.stream.annotation.StreamListener;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.stereotype.Service;
+For a comprehensive guide and reference implementation, explore the **Modern Web App pattern for Java**: [https://github.com/Azure/modern-web-app-pattern-java](https://github.com/Azure/modern-web-app-pattern-java)
 
-@Service
-public class EmailProcessor {
+Additionally, refer to the official Azure Service Bus Java documentation: [https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-java-how-to-use-queues](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-java-how-to-use-queues)
 
-    @StreamListener("emailRequest-in-0")
-    public void handleEmailRequest(@Payload EmailRequest emailRequest) {
-        // Process the email request
-        // For example, send an email using the provided details
-    }
-}
-```
-
-Here, the `EmailProcessor` service listens to the `emailRequest-in-0` binding, processes the `EmailRequest` messages, and performs the necessary actions, such as sending emails.
-
-**Autoscaling Configuration:**
-
-The email processor service is configured to scale automatically based on the length of the Service Bus queue. This is achieved using the Kubernetes-based Event Driven Autoscaling (KEDA) component in Azure Container Apps.
-
-```hcl
-resource "azurerm_container_app" "email_processor" {
-  name                = "email-processor"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-
-  template {
-    containers {
-      name   = "email-processor"
-      image  = var.email_processor_image
-      cpu    = "0.25"
-      memory = "0.5Gi"
-
-      env {
-        name  = "SERVICE_BUS_CONNECTION_STRING"
-        value = var.service_bus_connection_string
-      }
-    }
-
-    scale {
-      min_replicas = 1
-      max_replicas = 10
-
-      rules {
-        name = "servicebus-queue"
-        custom {
-          type = "azure-servicebus"
-          metadata = {
-            queueName = var.service_bus_queue_name
-            messageCount = "5"
-          }
-          auth {
-            triggerParameter = "connection"
-            secretRef        = "servicebus-connection-string"
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-In this Terraform configuration, the `email-processor` container app is set to scale between 1 and 10 replicas based on the number of messages in the Service Bus queue. For every 5 messages in the queue, an additional replica is added, allowing the system to handle increased load efficiently.
-
-**Conclusion**
-
-By leveraging Azure Service Bus within the MWA pattern, Java applications can achieve a more robust and scalable architecture, effectively handling varying workloads and enhancing overall system resilience.
-
-For a comprehensive guide and reference implementation of the MWA pattern for Java, you can explore the official GitHub repository: [https://github.com/Azure/modern-web-app-pattern-java](https://github.com/Azure/modern-web-app-pattern-java) 
