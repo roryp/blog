@@ -4,31 +4,19 @@
 
 In today's software landscape, handling fluctuating workloads efficiently is crucial for performance and reliability. The **Queue-Based Load Leveling pattern** introduces a queue between producers and consumers, ensuring tasks are decoupled from processing. This approach helps manage spikes in demand without overwhelming the system.
 
-While in-memory queues offer a straightforward solution, they have limitations in distributed environments. Integrating **Azure Service Bus** provides a scalable, durable messaging option. 
+While in-memory queues offer a straightforward solution, they have limitations in distributed environments. Integrating **Azure Service Bus** provides a scalable, durable messaging option.
 
 ## Simple Introduction: Virtual Threads with Queue-Based Load Leveling
 
-Below is a quick example that uses virtual threads to process tasks in a `BlockingQueue`. See [QueueLoadLevelingWithVirtualThreads.java](src/main/java/com/example/demo/QueueLoadLevelingWithVirtualThreads.java):
+Below is a quick example that uses virtual threads to process **emails** in a `BlockingQueue`. See [QueueLoadLevelingWithVirtualThreads.java](src/main/java/com/example/demo/QueueLoadLevelingWithVirtualThreads.java):
 
 ```java
-// Represents a task to be processed, storing an ID and description
-record Task(int id, String description) {}
+// Represents an email to be processed, storing an ID and content
+record EmailTask(int id, String content) {}
 
-// Producer that generates tasks and adds them to the queue
-class Producer implements Runnable {
-    // Atomic counter to assign unique IDs to each task
-    private static final AtomicInteger taskIdCounter = new AtomicInteger(0);
-    // BlockingQueue shared between producers and consumers
-    private final BlockingQueue<Task> queue;
-    // Used to signal when production should stop
-    private final AtomicBoolean running = new AtomicBoolean(true);
-    // Identifies which producer is running
-    private final int producerId;
-
-    public Producer(BlockingQueue<Task> queue, int producerId) {
-        this.queue = queue;
-        this.producerId = producerId;
-    }
+// Producer-like class that simulates creating emails and adding them to the queue
+class EmailProducer implements Runnable {
+    // ...
 }
 ```
 

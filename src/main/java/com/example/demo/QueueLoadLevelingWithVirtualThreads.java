@@ -8,17 +8,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-// Represents a task to be processed
-record Task(int id, String description) {}
+// Represents an email to be processed
+record EmailTask(int id, String content) {}
 
-// Producer that generates tasks and adds them to the queue
-class Producer implements Runnable {
-    private static final AtomicInteger taskIdCounter = new AtomicInteger(0);
-    private final BlockingQueue<Task> queue;
+// Producer-like class that simulates creating emails and adding them to the queue
+class EmailProducer implements Runnable {
+    private static final AtomicInteger emailIdCounter = new AtomicInteger(0);
+    private final BlockingQueue<EmailTask> queue;
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final int producerId;
 
-    public Producer(BlockingQueue<Task> queue, int producerId) {
+    public EmailProducer(BlockingQueue<EmailTask> queue, int producerId) {
         this.queue = queue;
         this.producerId = producerId;
     }
@@ -27,11 +27,13 @@ class Producer implements Runnable {
     public void run() {
         try {
             while (running.get()) {
-                int taskId = taskIdCounter.incrementAndGet();
-                Task task = new Task(taskId, "Task " + taskId + " from Producer " + producerId);
-                queue.put(task); // Add task to the queue
-                System.out.println("Produced: " + task.description());
-                // Simulate variable time taken to produce a task
+                int emailId = emailIdCounter.incrementAndGet();
+                EmailTask email = new EmailTask(
+                    emailId, "Email " + emailId + " from Producer " + producerId
+                );
+                queue.put(email);
+                System.out.println("Produced email: " + email.content());
+                // Simulate time to produce an email
                 Thread.sleep(ThreadLocalRandom.current().nextInt(100, 500));
             }
         } catch (InterruptedException e) {
@@ -46,13 +48,13 @@ class Producer implements Runnable {
     }
 }
 
-// Consumer that processes tasks from the queue
-class Consumer implements Runnable {
-    private final BlockingQueue<Task> queue;
+// Consumer-like class that simulates sending emails
+class EmailConsumer implements Runnable {
+    private final BlockingQueue<EmailTask> queue;
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final int consumerId;
 
-    public Consumer(BlockingQueue<Task> queue, int consumerId) {
+    public EmailConsumer(BlockingQueue<EmailTask> queue, int consumerId) {
         this.queue = queue;
         this.consumerId = consumerId;
     }
@@ -61,10 +63,10 @@ class Consumer implements Runnable {
     public void run() {
         try {
             while (running.get() || !queue.isEmpty()) {
-                Task task = queue.poll(100, TimeUnit.MILLISECONDS); // Retrieve and remove task from the queue
-                if (task != null) {
-                    System.out.println("Consumer " + consumerId + " processing: " + task.description());
-                    // Simulate time taken to process a task
+                EmailTask email = queue.poll(100, TimeUnit.MILLISECONDS);
+                if (email != null) {
+                    System.out.println("Consumer " + consumerId + " sending: " + email.content());
+                    // Simulate time to send each email
                     Thread.sleep(ThreadLocalRandom.current().nextInt(200, 1000));
                 }
             }
@@ -82,29 +84,29 @@ class Consumer implements Runnable {
 
 public class QueueLoadLevelingWithVirtualThreads {
     public static void main(String[] args) throws InterruptedException {
-        BlockingQueue<Task> queue = new LinkedBlockingQueue<>();
+        BlockingQueue<EmailTask> queue = new LinkedBlockingQueue<>();
 
-        // Create a custom ThreadFactory for virtual threads
+        // Use a custom ThreadFactory for virtual threads
         ThreadFactory virtualThreadFactory = Thread.ofVirtual().factory();
 
-        // Create and start multiple producers using virtual threads
-        Producer producer1 = new Producer(queue, 1);
-        Producer producer2 = new Producer(queue, 2);
+        // Create and start multiple EmailProducers
+        EmailProducer producer1 = new EmailProducer(queue, 1);
+        EmailProducer producer2 = new EmailProducer(queue, 2);
         Thread producerThread1 = virtualThreadFactory.newThread(producer1);
         Thread producerThread2 = virtualThreadFactory.newThread(producer2);
         producerThread1.start();
         producerThread2.start();
 
-        // Create and start multiple consumers using virtual threads
-        Consumer consumer1 = new Consumer(queue, 1);
-        Consumer consumer2 = new Consumer(queue, 2);
+        // Create and start multiple EmailConsumers
+        EmailConsumer consumer1 = new EmailConsumer(queue, 1);
+        EmailConsumer consumer2 = new EmailConsumer(queue, 2);
         Thread consumerThread1 = virtualThreadFactory.newThread(consumer1);
         Thread consumerThread2 = virtualThreadFactory.newThread(consumer2);
         consumerThread1.start();
         consumerThread2.start();
 
-        // Let the system run for a specified duration
-        Thread.sleep(10000); // Run for 10 seconds
+        // Let the system run for a short duration
+        Thread.sleep(10000);
 
         // Initiate shutdown
         System.out.println("Initiating shutdown...");
@@ -113,7 +115,7 @@ public class QueueLoadLevelingWithVirtualThreads {
         producerThread1.join();
         producerThread2.join();
 
-        // Allow consumers to finish processing remaining tasks
+        // Let consumers finish remaining emails
         while (!queue.isEmpty()) {
             Thread.sleep(100);
         }
