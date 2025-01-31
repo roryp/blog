@@ -120,7 +120,7 @@ public class QueueLoadLevelingWithVirtualThreads {
 }
 ```
 
-This example is also available in the **Modern Web App (MWA) pattern repository** as an introductory demonstration of Queue-Based Load Leveling. It illustrates the principles of load balancing but lacks durability and scalability for distributed environments.
+This example is available in this repository** as an introductory demonstration of Queue-Based Load Leveling. It illustrates the principles of load balancing but lacks durability and scalability for distributed environments.
 
 ## Implementing Queue-Based Load Leveling with Azure Service Bus
 
@@ -152,8 +152,6 @@ public class SupportGuideQueueSender {
     }
 }
 ```
-
-... (Remaining Azure Service Bus implementation and conclusion)
 
 ## Conclusion
 
