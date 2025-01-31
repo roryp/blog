@@ -2,20 +2,15 @@
 
 ## Introduction
 
-In modern software architecture, efficiently managing varying workloads is crucial for maintaining system performance and reliability. The **Queue-Based Load Leveling pattern** addresses this challenge by introducing a queue between producers and consumers, decoupling task submission from processing. This approach allows systems to handle intermittent heavy loads gracefully.
+In today's software landscape, handling fluctuating workloads efficiently is crucial for performance and reliability. The **Queue-Based Load Leveling pattern** introduces a queue between producers and consumers, ensuring tasks are decoupled from processing. This approach helps manage spikes in demand without overwhelming the system.
 
-While in-memory queues can provide a simple implementation, they come with limitations in distributed, cloud-based environments. Leveraging a managed messaging service like **Azure Service Bus** offers a scalable, durable, and decoupled solution for implementing Queue-Based Load Leveling in Java applications.
+While in-memory queues offer a straightforward solution, they have limitations in distributed environments. Integrating **Azure Service Bus** provides a scalable, durable messaging option. 
 
 ## Simple Introduction: Virtual Threads with Queue-Based Load Leveling
 
-Before diving into a cloud-based approach, consider the following example that implements Queue-Based Load Leveling using **Java Virtual Threads**. This example demonstrates how multiple producers and consumers can process tasks efficiently with a `BlockingQueue`.
+Below is a quick example that uses virtual threads to process tasks in a `BlockingQueue`. See [QueueLoadLevelingWithVirtualThreads.java](src/main/java/com/example/demo/QueueLoadLevelingWithVirtualThreads.java):
 
 ```java
-package com.example.demo;
-
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
 // Represents a task to be processed
 record Task(int id, String description) {}
 
@@ -167,4 +162,3 @@ By leveraging Azure Service Bus within the **Queue-Based Load Leveling pattern**
 For a comprehensive guide and reference implementation, explore the **Modern Web App pattern for Java**: [https://github.com/Azure/modern-web-app-pattern-java](https://github.com/Azure/modern-web-app-pattern-java)
 
 Additionally, refer to the official Azure Service Bus Java documentation: [https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-java-how-to-use-queues](https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-java-how-to-use-queues)
-
