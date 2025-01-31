@@ -11,116 +11,32 @@ While in-memory queues offer a straightforward solution, they have limitations i
 Below is a quick example that uses virtual threads to process tasks in a `BlockingQueue`. See [QueueLoadLevelingWithVirtualThreads.java](src/main/java/com/example/demo/QueueLoadLevelingWithVirtualThreads.java):
 
 ```java
-// Represents a task to be processed
+// Represents a task to be processed, storing an ID and description
 record Task(int id, String description) {}
 
 // Producer that generates tasks and adds them to the queue
 class Producer implements Runnable {
+    // Atomic counter to assign unique IDs to each task
     private static final AtomicInteger taskIdCounter = new AtomicInteger(0);
+    // BlockingQueue shared between producers and consumers
     private final BlockingQueue<Task> queue;
+    // Used to signal when production should stop
     private final AtomicBoolean running = new AtomicBoolean(true);
+    // Identifies which producer is running
     private final int producerId;
 
     public Producer(BlockingQueue<Task> queue, int producerId) {
         this.queue = queue;
         this.producerId = producerId;
     }
-
-    @Override
-    public void run() {
-        try {
-            while (running.get()) {
-                int taskId = taskIdCounter.incrementAndGet();
-                Task task = new Task(taskId, "Task " + taskId + " from Producer " + producerId);
-                queue.put(task);
-                System.out.println("Produced: " + task.description());
-                Thread.sleep(ThreadLocalRandom.current().nextInt(100, 500));
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } finally {
-            System.out.println("Producer " + producerId + " stopped.");
-        }
-    }
-
-    public void stop() {
-        running.set(false);
-    }
-}
-
-// Consumer that processes tasks from the queue
-class Consumer implements Runnable {
-    private final BlockingQueue<Task> queue;
-    private final AtomicBoolean running = new AtomicBoolean(true);
-    private final int consumerId;
-
-    public Consumer(BlockingQueue<Task> queue, int consumerId) {
-        this.queue = queue;
-        this.consumerId = consumerId;
-    }
-
-    @Override
-    public void run() {
-        try {
-            while (running.get() || !queue.isEmpty()) {
-                Task task = queue.poll(100, TimeUnit.MILLISECONDS);
-                if (task != null) {
-                    System.out.println("Consumer " + consumerId + " processing: " + task.description());
-                    Thread.sleep(ThreadLocalRandom.current().nextInt(200, 1000));
-                }
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } finally {
-            System.out.println("Consumer " + consumerId + " stopped.");
-        }
-    }
-
-    public void stop() {
-        running.set(false);
-    }
-}
-
-public class QueueLoadLevelingWithVirtualThreads {
-    public static void main(String[] args) throws InterruptedException {
-        BlockingQueue<Task> queue = new LinkedBlockingQueue<>();
-        ThreadFactory virtualThreadFactory = Thread.ofVirtual().factory();
-
-        Producer producer1 = new Producer(queue, 1);
-        Producer producer2 = new Producer(queue, 2);
-        Thread producerThread1 = virtualThreadFactory.newThread(producer1);
-        Thread producerThread2 = virtualThreadFactory.newThread(producer2);
-        producerThread1.start();
-        producerThread2.start();
-
-        Consumer consumer1 = new Consumer(queue, 1);
-        Consumer consumer2 = new Consumer(queue, 2);
-        Thread consumerThread1 = virtualThreadFactory.newThread(consumer1);
-        Thread consumerThread2 = virtualThreadFactory.newThread(consumer2);
-        consumerThread1.start();
-        consumerThread2.start();
-
-        Thread.sleep(10000);
-        System.out.println("Initiating shutdown...");
-        producer1.stop();
-        producer2.stop();
-        producerThread1.join();
-        producerThread2.join();
-
-        while (!queue.isEmpty()) {
-            Thread.sleep(100);
-        }
-
-        consumer1.stop();
-        consumer2.stop();
-        consumerThread1.join();
-        consumerThread2.join();
-        System.out.println("Shutdown complete.");
-    }
 }
 ```
 
-This example is available in this repository** as an introductory demonstration of Queue-Based Load Leveling. It illustrates the principles of load balancing but lacks durability and scalability for distributed environments.
+This example uses a `BlockingQueue` to manage tasks produced by multiple producers and consumed by multiple consumers. Each `Producer` creates a `Task` with a unique ID and places it into the queue, while the `Consumer` reads tasks and processes them. This approach demonstrates a straightforward in-memory messaging solution that works well for smaller applications or single-node setups.
+
+## Comparison with Azure Service Bus
+
+In contrast, the [Azure Modern Web App pattern for Java](https://github.com/azure/modern-web-app-pattern-java) shows how tasks are communicated through Azure Service Bus. This allows for distributed, scalable messaging across multiple nodes or microservices. Service Bus includes built-in features like auto-scaling, fault tolerance, and flexible provisioning of topics and queues, making it suitable for enterprise-level deployments.
 
 ## Implementing Queue-Based Load Leveling with Azure Service Bus
 
