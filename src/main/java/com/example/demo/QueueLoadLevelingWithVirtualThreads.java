@@ -18,7 +18,8 @@ import javax.swing.Timer;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import dev.langchain4j.model.localai.LocalAiChatModel;
+import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.ollama.OllamaChatModel;
 
 /**
  * A simple monitor for keeping track of production and processing metrics.
@@ -164,7 +165,10 @@ class StatusBarFrame extends JFrame {
 
 /**
  * LangChainLLMReportGenerator uses LangChain4j to generate a final report based on the processing metrics.
- * This example uses a locally running LLM (for example, LocalAI) with LangChain4j e.g. docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu
+ * This example uses a locally running LLM (for example, LocalAI) with LangChain4j
+ * e.g. 
+ * ollama pull phi4
+ * ollama run phi4
  * See :contentReference[oaicite:2]{index=2} and :contentReference[oaicite:3]{index=3} for further details.
  */
 class LangChainLLMReportGenerator {
@@ -174,10 +178,10 @@ class LangChainLLMReportGenerator {
             "Explain whether all emails were processed successfully or if there is a discrepancy, and summarize overall performance.",
             monitor.producedCount.get(), monitor.processedCount.get(), monitor.activeProcessingCount.get());
 
-        var model = LocalAiChatModel.builder()
-            .baseUrl("http://localhost:8080")
-            .modelName("lunademo")
-            .temperature(0.0)
+            ChatLanguageModel model = OllamaChatModel.builder()
+            .baseUrl("http://localhost:11434")
+            .modelName("phi4")
+            .temperature(0.7)
             .build();
 
         return model.generate(prompt);
