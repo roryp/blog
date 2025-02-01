@@ -18,6 +18,8 @@ import javax.swing.Timer;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import dev.langchain4j.model.localai.LocalAiChatModel;
+
 /**
  * A simple monitor for keeping track of production and processing metrics.
  */
@@ -50,7 +52,6 @@ class EmailProducer implements Runnable {
 
     @Override
     public void run() {
-        // Name the thread for easier debugging.
         Thread.currentThread().setName("Producer-" + producerId);
         try {
             while (running.get()) {
@@ -58,7 +59,6 @@ class EmailProducer implements Runnable {
                 EmailTask email = new EmailTask(emailId, "Email " + emailId + " from Producer " + producerId);
                 queue.put(email);
                 monitor.producedCount.incrementAndGet();
-                // Simulate time to produce an email.
                 Thread.sleep(ThreadLocalRandom.current().nextInt(100, 500));
             }
         } catch (InterruptedException e) {
@@ -74,7 +74,7 @@ class EmailProducer implements Runnable {
 }
 
 /**
- * Consumer that simulates sending emails. A special “poison pill” message is used
+ * Consumer that simulates sending emails. Uses a poison pill (an EmailTask with id -1)
  * to gracefully signal shutdown.
  */
 class EmailConsumer implements Runnable {
@@ -94,15 +94,11 @@ class EmailConsumer implements Runnable {
         try {
             while (true) {
                 EmailTask email = queue.take();
-                // Check for the poison pill (an email with id -1).
                 if (email.id() == -1) {
-                    // Reinsert poison pill for any other waiting consumers.
                     queue.put(email);
                     break;
                 }
-                // Indicate that processing is starting.
                 monitor.activeProcessingCount.incrementAndGet();
-                // Simulate the time taken to send/process the email.
                 Thread.sleep(ThreadLocalRandom.current().nextInt(200, 1000));
                 monitor.activeProcessingCount.decrementAndGet();
                 monitor.processedCount.incrementAndGet();
@@ -116,7 +112,7 @@ class EmailConsumer implements Runnable {
 }
 
 /**
- * A simple Swing UI that displays the status of the system.
+ * A simple Swing UI that displays the current system status.
  */
 class StatusBarFrame extends JFrame {
     private final JLabel queueLabel;
@@ -132,7 +128,6 @@ class StatusBarFrame extends JFrame {
         this.queue = queue;
         this.monitor = monitor;
 
-        // Create labels.
         queueLabel = new JLabel("Queue Length: 0");
         producedLabel = new JLabel("Emails Produced: 0");
         processedLabel = new JLabel("Emails Processed: 0");
@@ -144,7 +139,6 @@ class StatusBarFrame extends JFrame {
         processedLabel.setFont(font);
         activeLabel.setFont(font);
 
-        // Arrange labels in a grid.
         JPanel panel = new JPanel(new GridLayout(2, 2));
         panel.add(queueLabel);
         panel.add(producedLabel);
@@ -152,8 +146,6 @@ class StatusBarFrame extends JFrame {
         panel.add(activeLabel);
 
         add(panel, BorderLayout.CENTER);
-
-        // Use a Swing Timer to update the status every 500 ms.
         timer = new Timer(500, e -> updateStatus());
         timer.start();
 
@@ -171,60 +163,71 @@ class StatusBarFrame extends JFrame {
 }
 
 /**
- * Main class that demonstrates queue-based load leveling using virtual threads
- * and a status bar. (In the future you can swap the local queue with an Azure Service Bus.)
+ * LangChainLLMReportGenerator uses LangChain4j to generate a final report based on the processing metrics.
+ * This example uses a locally running LLM (for example, LocalAI) with LangChain4j e.g. docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu
+ * See :contentReference[oaicite:2]{index=2} and :contentReference[oaicite:3]{index=3} for further details.
+ */
+class LangChainLLMReportGenerator {
+    public String generateReport(StatusMonitor monitor) {
+        String prompt = String.format(
+            "Generate a final report on email processing metrics. Emails Produced: %d, Emails Processed: %d, Active Processing: %d. " +
+            "Explain whether all emails were processed successfully or if there is a discrepancy, and summarize overall performance.",
+            monitor.producedCount.get(), monitor.processedCount.get(), monitor.activeProcessingCount.get());
+
+        var model = LocalAiChatModel.builder()
+            .baseUrl("http://localhost:8080")
+            .modelName("lunademo")
+            .temperature(0.0)
+            .build();
+
+        return model.generate(prompt);
+    }
+}
+
+/**
+ * Main class demonstrating queue-based load leveling with virtual threads,
+ * and generating a final report using LangChain4j.
  */
 public class QueueLoadLevelingWithVirtualThreads {
-    // Define the number of consumers.
     private static final int NUM_CONSUMERS = 2;
 
     public static void main(String[] args) {
-        // Create the shared queue and status monitor.
         BlockingQueue<EmailTask> queue = new LinkedBlockingQueue<>();
         StatusMonitor monitor = new StatusMonitor();
 
-        // Start the Swing UI on the Event Dispatch Thread.
         SwingUtilities.invokeLater(() -> {
             StatusBarFrame frame = new StatusBarFrame(queue, monitor);
             frame.setVisible(true);
         });
 
-        // Use an ExecutorService backed by virtual threads.
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            // Create and submit producers.
             EmailProducer producer1 = new EmailProducer(queue, 1, monitor);
             EmailProducer producer2 = new EmailProducer(queue, 2, monitor);
             var producerFuture1 = executor.submit(producer1);
             var producerFuture2 = executor.submit(producer2);
 
-            // Create and submit consumers.
             EmailConsumer consumer1 = new EmailConsumer(queue, 1, monitor);
             EmailConsumer consumer2 = new EmailConsumer(queue, 2, monitor);
             var consumerFuture1 = executor.submit(consumer1);
             var consumerFuture2 = executor.submit(consumer2);
 
-            // Let the simulation run for 10 seconds.
             Thread.sleep(10_000);
 
-            // Initiate shutdown of the producers.
             System.out.println("Initiating shutdown of producers...");
             producer1.stop();
             producer2.stop();
             try {
-                // Wait for both producers to finish.
                 producerFuture1.get();
                 producerFuture2.get();
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
 
-            // Insert one poison pill for each consumer.
             System.out.println("Inserting poison pills for consumers...");
             for (int i = 0; i < NUM_CONSUMERS; i++) {
                 queue.put(new EmailTask(-1, "POISON"));
             }
 
-            // Wait for consumers to finish.
             try {
                 consumerFuture1.get();
                 consumerFuture2.get();
@@ -233,6 +236,15 @@ public class QueueLoadLevelingWithVirtualThreads {
             }
 
             System.out.println("Shutdown complete.");
+
+            try {
+                LangChainLLMReportGenerator reportGenerator = new LangChainLLMReportGenerator();
+                String finalReport = reportGenerator.generateReport(monitor);
+                System.out.println("=== LLM Generated Report ===");
+                System.out.println(finalReport);
+            } catch (Exception e) {
+                System.err.println("Error generating LLM report: " + e.getMessage());
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
