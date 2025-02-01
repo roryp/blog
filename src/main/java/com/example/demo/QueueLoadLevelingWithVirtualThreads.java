@@ -165,8 +165,8 @@ class StatusBarFrame extends JFrame {
 
 /**
  * LangChainLLMReportGenerator uses LangChain4j to generate a final report based on the processing metrics.
- * This example uses a locally running LLM (for example, LocalAI) with LangChain4j
- * e.g. 
+ * This example uses a locally running LLM (ollama) with LangChain4j
+ * to run install ollama and pull the phi4 model, and then generate a report:
  * ollama pull phi4
  * ollama run phi4
  * See :contentReference[oaicite:2]{index=2} and :contentReference[oaicite:3]{index=3} for further details.
