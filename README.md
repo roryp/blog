@@ -1,4 +1,4 @@
-![email simulation](email.jpg)
+![email simulation](email.webp)
 
 # Queue-Based Load Leveling in Java with Azure Service Bus
 
