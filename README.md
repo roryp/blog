@@ -123,26 +123,22 @@ For production environments, processing emails synchronously within the web appl
 
 Thanks to Kubernetes-based Event Driven Autoscaling (KEDA), resources can scale dynamically based on the queue length. This ensures that your email processing service remains robust and responsive, even during traffic surges.
 
----
+## Real-World Application: Contoso Fiber and the MWA Pattern
 
-## Real-World Application: Contoso Fiber Case Study
-
-The MWA reference application, Contoso Fiber, showcases how to migrate a legacy Customer Account Management System (CAMS) by adopting the Modern Web App pattern. One of the patterns it implements, is queue based load leveling for the legacy email service, giving it these new features:
+Contoso Fiber, a Modern Web App (MWA) reference application, illustrates how a legacy Customer Account Management System (CAMS) can be effectively transformed using modern design principles. By adopting the Modern Web App pattern along with queue-based load leveling for its email service, Contoso Fiber achieves:
 
 - **Enhanced Responsiveness:**  
-  By enqueuing email requests rather than processing them inline, the main application remained responsive under high load.
+  Email requests are queued for asynchronous handling rather than processed inline, keeping the main application fast and responsive even during peak load.
+
 - **Independent Processing:**  
-  A dedicated service handled email delivery, improving scalability and resource utilization.
+  A dedicated microservice manages email delivery separately, decoupling it from core workflows and optimizing resource use.
+
 - **Dynamic Scaling:**  
-  KEDA provided automatic scaling, ensuring that the email processing service could handle variable workloads efficiently.
+  Utilizing Kubernetes-based Event Driven Autoscaling (KEDA), the email processing service automatically scales in response to demand fluctuations, ensuring robust performance.
 
----
+Integrating Azure Service Bus with the Queue-Based Load Leveling pattern empowers Java applications with superior scalability, resilience, and efficiency. Decoupling critical operations and offloading them to containerized services like Azure Container Apps ensures that your system maintains high performance even under heavy workloads.
 
-## Conclusion
-
-Integrating Azure Service Bus within the Queue-Based Load Leveling pattern empowers your Java applications with enhanced scalability, resilience, and performance. By decoupling critical operations and leveraging containerized services like Azure Container Apps, you ensure that your system remains responsive during peak demand periods.
-
-For a deeper dive into these patterns and a reference implementation, check out the [Modern Web App pattern for Java](https://github.com/Azure/modern-web-app-pattern-java).
+For further details and a reference implementation, explore the [Modern Web App pattern for Java](https://github.com/Azure/modern-web-app-pattern-java).
 
 ---
 
