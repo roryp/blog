@@ -1,3 +1,5 @@
+![email simulation](email.jpg)
+
 # Queue-Based Load Leveling in Java with Azure Service Bus
 
 In today’s fast-paced software landscape, handling dynamic workloads efficiently is more critical than ever. One effective strategy is the **Queue-Based Load Leveling pattern**. This approach decouples task production from consumption by introducing a queue, smoothing out workload spikes and ensuring that both producers and consumers operate independently without overwhelming your system.
