@@ -117,13 +117,11 @@ In this snippet, the `StreamBridge` simplifies dispatching messages to Azure Ser
 
 ---
 
-## Dedicated Email Processing with Azure Container Apps
+## The Modern Web App Pattern and queue-based load leveling
 
 For production environments, processing emails synchronously within the web application can be a recipe for disaster under load. Instead, by offloading email processing to Azure Service Bus, you can delegate this task to a dedicated service. This service, deployed via **Azure Container Apps**, continuously monitors the queue and processes messages asynchronously. 
 
 Thanks to Kubernetes-based Event Driven Autoscaling (KEDA), resources can scale dynamically based on the queue length. This ensures that your email processing service remains robust and responsive, even during traffic surges.
-
-## Real-World Application: Contoso Fiber and the MWA Pattern
 
 Contoso Fiber, a Modern Web App (MWA) reference application, illustrates how a legacy Customer Account Management System (CAMS) can be effectively transformed using modern design principles. By adopting the Modern Web App pattern along with queue-based load leveling for its email service, Contoso Fiber achieves:
 
