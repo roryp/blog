@@ -135,9 +135,7 @@ With Kubernetes-based Event Driven Autoscaling (KEDA), the system scales resourc
   KEDA automatically scales the service in response to demand, ensuring robust performance during traffic surges.
 
 Integrating Azure Service Bus with queue-based load leveling empowers your Java applications with unparalleled scalability and resilience. Offloading critical operations to containerized services like Azure Container Apps keeps your system performing at its best, even under heavy loads.
-
 Embracing modern patterns like queue-based load leveling is key to building scalable, resilient applications. Integrating tools like Azure Service Bus into your Java projects can transform the way your systems handle load and scale.
----
 
 ## Further Reading
 
