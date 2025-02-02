@@ -118,13 +118,7 @@ public class SupportGuideQueueSender {
 }
 ```
 
-Here, the `StreamBridge` simplifies sending messages to Azure Service Bus, letting you focus on core business logic rather than low-level messaging details.
-
----
-
-## Modern Web App Patterns and Queue-Based Load Leveling
-
-Processing emails synchronously in a web application under heavy load can be a recipe for disaster. Instead, offloading this task to Azure Service Bus means that email processing is handled by a dedicated service. Deployed via **Azure Container Apps**, this service monitors the queue and processes messages asynchronously. 
+Here, the StreamBridge abstracts the complexity of interacting with Azure Service Bus, letting you concentrate on your core business logic instead of managing low-level messaging operations. Additionally, rather than processing emails synchronously and risking performance bottlenecks during high-traffic periods, this design offloads email handling to a dedicated service. Deployed via **Azure Container Apps**, the service continuously monitors the queue and processes messages asynchronously, ensuring reliable and scalable email management under heavy load.
 
 With Kubernetes-based Event Driven Autoscaling (KEDA), the system scales resources dynamically based on the queue length, ensuring that your email service remains robust even during peak traffic. For example, Contoso Fiber—a Modern Web App (MWA) reference application—transforms its legacy Customer Account Management System (CAMS) by adopting these modern patterns. The benefits include:
 
