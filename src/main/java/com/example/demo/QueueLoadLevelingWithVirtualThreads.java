@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.Timer;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -21,23 +22,14 @@ import javax.swing.WindowConstants;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 
-/**
- * A simple monitor for keeping track of production and processing metrics.
- */
 class StatusMonitor {
     public final AtomicInteger producedCount = new AtomicInteger(0);
     public final AtomicInteger processedCount = new AtomicInteger(0);
     public final AtomicInteger activeProcessingCount = new AtomicInteger(0);
 }
 
-/**
- * Represents an email to be processed.
- */
 record EmailTask(int id, String content) {}
 
-/**
- * Producer that simulates creating emails and placing them on the queue.
- */
 class EmailProducer implements Runnable {
     private static final AtomicInteger emailIdCounter = new AtomicInteger(0);
     private final BlockingQueue<EmailTask> queue;
@@ -74,10 +66,6 @@ class EmailProducer implements Runnable {
     }
 }
 
-/**
- * Consumer that simulates sending emails. Uses a poison pill (an EmailTask with id -1)
- * to gracefully signal shutdown.
- */
 class EmailConsumer implements Runnable {
     private final BlockingQueue<EmailTask> queue;
     private final int consumerId;
@@ -112,14 +100,12 @@ class EmailConsumer implements Runnable {
     }
 }
 
-/**
- * A simple Swing UI that displays the current system status.
- */
 class StatusBarFrame extends JFrame {
     private final JLabel queueLabel;
     private final JLabel producedLabel;
     private final JLabel processedLabel;
     private final JLabel activeLabel;
+    private final JProgressBar progressBar;
     private final BlockingQueue<EmailTask> queue;
     private final StatusMonitor monitor;
     private final Timer timer;
@@ -133,18 +119,21 @@ class StatusBarFrame extends JFrame {
         producedLabel = new JLabel("Emails Produced: 0");
         processedLabel = new JLabel("Emails Processed: 0");
         activeLabel = new JLabel("Active Processing: 0");
+        progressBar = new JProgressBar(0, 100);
 
         Font font = new Font("SansSerif", Font.BOLD, 16);
         queueLabel.setFont(font);
         producedLabel.setFont(font);
         processedLabel.setFont(font);
         activeLabel.setFont(font);
+        progressBar.setFont(font);
 
-        JPanel panel = new JPanel(new GridLayout(2, 2));
+        JPanel panel = new JPanel(new GridLayout(3, 2));
         panel.add(queueLabel);
         panel.add(producedLabel);
         panel.add(processedLabel);
         panel.add(activeLabel);
+        panel.add(progressBar);
 
         add(panel, BorderLayout.CENTER);
         timer = new Timer(500, e -> updateStatus());
@@ -160,17 +149,10 @@ class StatusBarFrame extends JFrame {
         producedLabel.setText("Emails Produced: " + monitor.producedCount.get());
         processedLabel.setText("Emails Processed: " + monitor.processedCount.get());
         activeLabel.setText("Active Processing: " + monitor.activeProcessingCount.get());
+        progressBar.setValue((int) ((double) monitor.processedCount.get() / monitor.producedCount.get() * 100));
     }
 }
 
-/**
- * LangChainLLMReportGenerator uses LangChain4j to generate a final report based on the processing metrics.
- * This example uses a locally running LLM (ollama) with LangChain4j
- * to run install ollama and pull the phi4 model, and then generate a report:
- * ollama pull phi4
- * ollama run phi4
- * See :contentReference[oaicite:2]{index=2} and :contentReference[oaicite:3]{index=3} for further details.
- */
 class LangChainLLMReportGenerator {
     public String generateReport(StatusMonitor monitor) {
         String prompt = String.format(
@@ -188,10 +170,6 @@ class LangChainLLMReportGenerator {
     }
 }
 
-/**
- * Main class demonstrating queue-based load leveling with virtual threads,
- * and generating a final report using LangChain4j.
- */
 public class QueueLoadLevelingWithVirtualThreads {
     private static final int NUM_CONSUMERS = 2;
 
