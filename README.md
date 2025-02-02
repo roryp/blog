@@ -83,7 +83,7 @@ In-memory queues are great for development and testing, but enterprise-level app
 - **Resilience:**  
   With features like message persistence, automatic retries, and dead-letter queues, your messaging system is built to withstand failures.
 
-Below is a sample producer implementation that demonstrates how to integrate Azure Service Bus using the **Modern Web App (MWA) pattern**.
+Below is a sample producer implementation that demonstrates how to integrate Azure Service Bus
 
 ### Sample Producer Implementation
 
