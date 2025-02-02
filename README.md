@@ -127,7 +127,7 @@ Thanks to Kubernetes-based Event Driven Autoscaling (KEDA), resources can scale 
 
 ## Real-World Application: Contoso Fiber Case Study
 
-The MWA reference application, Contoso Fiber,  showcased how to migrate its legacy Customer Account Management System (CAMS) by adopting the Modern Web App pattern. One of the patterns it implements is queue based load leveling for the legacy email service giving it these new features:
+The MWA reference application, Contoso Fiber, showcases how to migrate a legacy Customer Account Management System (CAMS) by adopting the Modern Web App pattern. One of the patterns it implements, is queue based load leveling for the legacy email service, giving it these new features:
 
 - **Enhanced Responsiveness:**  
   By enqueuing email requests rather than processing them inline, the main application remained responsive under high load.
