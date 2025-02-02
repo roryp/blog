@@ -221,7 +221,7 @@ public class QueueLoadLevelingWithVirtualThreads {
 
             try {
                 LangChainLLMReportGenerator reportGenerator = new LangChainLLMReportGenerator();
-                System.out.println("=== Generated LLM Report ===.");
+                System.out.println("=== Generating LLM Report ===.");
                 String finalReport = reportGenerator.generateReport(monitor);
                 System.out.println("=== LLM Generated Report ===");
                 System.out.println(finalReport);
