@@ -26,7 +26,7 @@ While in-memory queues are ideal for small-scale or single-node applications, th
 - **Modern Concurrency:**  
   Leverages Java 21 virtual threads to efficiently handle concurrent task execution.
 
----
+Overall, the queue-based design balances the processing load between producers and consumers even under varying work rates.
 
 ## Getting Started
 
