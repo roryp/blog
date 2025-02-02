@@ -10,8 +10,6 @@ While in-memory queues are ideal for small-scale or single-node applications, th
 > ollama run phi4
 > ```
 
----
-
 ## Overview
 
 - **Email Simulation:**  
@@ -72,20 +70,6 @@ Overall, the queue-based design balances the processing load between producers a
    ```
    The Swing UI will launch and display live metrics. After a few seconds, the simulation stops and an LLM-generated report is printed to the console.
 
-### Docker (Optional)
-
-To run the application in a container, build your Docker image and execute:
-```bash
-docker run -p 8080:8080 \
-  -e LANGCHAIN4J_LOCALAI_CHAT_MODEL_BASE_URL=http://host.docker.internal:11434 \
-  -e LANGCHAIN4J_LOCALAI_CHAT_MODEL_MODEL_NAME=phi4 \
-  -e LANGCHAIN4J_LOCALAI_CHAT_MODEL_TEMPERATURE=0.7 \
-  my-langchain4j-app:latest
-```
-This maps the container’s port 8080 to your host and supplies the necessary environment variables.
-
----
-
 ## Comparison with Azure Service Bus
 
 In-memory queues work well for local testing, but enterprise applications benefit from using a fully managed messaging service like **Azure Service Bus**. Its advantages include:
@@ -100,8 +84,6 @@ In-memory queues work well for local testing, but enterprise applications benefi
   Offers robust features such as message persistence, automatic retries, and dead-letter queues.
 
 For an in-depth reference, check out the [Modern Web App pattern for Java](https://github.com/Azure/modern-web-app-pattern-java).
-
----
 
 ## Implementing Queue-Based Load Leveling with Azure Service Bus
 
@@ -137,8 +119,6 @@ public class SupportGuideQueueSender {
 
 In this example, `StreamBridge` abstracts the details of sending messages to Azure Service Bus, allowing your application to focus on business logic rather than messaging infrastructure.
 
----
-
 ## Dedicated Email Processing with Azure Container Apps
 
 One of the key benefits of the Modern Web App pattern is its ability to decouple application components for improved scalability and resilience. In a production environment, the email processing functionality is ideally implemented as a dedicated service deployed via **Azure Container Apps**.
@@ -167,8 +147,6 @@ One of the key benefits of the Modern Web App pattern is its ability to decouple
 
 For a comprehensive guide and reference implementation, see the [Modern Web App pattern for Java](https://github.com/Azure/modern-web-app-pattern-java).
 
----
-
 ## Case Study: Email ACA App and Queue-Based Load Leveling
 
 In the Modern Web App pattern, Contoso Fiber transformed its legacy Customer Account Management System (CAMS) by decoupling email delivery from the monolithic app. Key improvements include:
@@ -193,15 +171,11 @@ In the Modern Web App pattern, Contoso Fiber transformed its legacy Customer Acc
 - **Resilience:**  
   Robust messaging features (persistence, retries, dead-lettering) combined with containerized services enhance overall system reliability.
 
----
-
 ## Conclusion
 
 Integrating Azure Service Bus within the Queue-Based Load Leveling pattern enables Java applications to achieve robust, scalable, and resilient architectures. The Modern Web App pattern—by decoupling core functionalities and deploying services as independent containerized applications (such as via Azure Container Apps)—ensures that the system remains responsive even during high-demand periods.
 
 For more details and a reference implementation, explore the [Modern Web App pattern for Java](https://github.com/Azure/modern-web-app-pattern-java).
-
----
 
 ## Further Reading
 
