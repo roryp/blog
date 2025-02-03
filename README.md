@@ -74,9 +74,13 @@ Before diving in, ensure you have:
    ```
    A Swing-based UI will appear with live metrics, and after a brief simulation, an LLM-generated performance report will be displayed in your console.
 
+## Deep Dive
+
+For a more detailed look into the architecture, components, and workflow of the email processor app, check out the [demo.md](demo.md) file. It includes code snippets and explanations for key classes like `EmailProducer`, `EmailConsumer`, and `LangChainLLMReportGenerator`, as well as an explanation of the role of Azure Service Bus in the queue-based load leveling pattern.
+
 ---
 
-## Azure Service Bus: The Messaging Backbone for Scalability
+## Next Steps: Azure Service Bus
 
 The basic example does a lot but still suffers from coupling, scalability, and resilience issues.
 While in-memory queues are great for prototyping, enterprise-grade applications need a messaging backbone that can handle heavy loads. **Azure Service Bus** is exactly that—it decouples message processing from your core application logic, ensuring responsiveness even under high traffic. Here’s why it’s a game changer:
@@ -159,3 +163,5 @@ Integrating Azure Service Bus with queue-based load leveling empowers your Java 
 Embracing modern patterns like queue-based load leveling is key to building scalable, resilient applications. Integrating tools like Azure Service Bus into your Java projects can transform the way your systems handle load and scale - get started now with the [Modern Web App Pattern for Java](https://github.com/Azure/modern-web-app-pattern-java)
 
 ---
+
+
