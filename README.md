@@ -129,6 +129,32 @@ With Kubernetes-based Event Driven Autoscaling (KEDA), the system scales resourc
 - **Dynamic Scaling:**  
   KEDA automatically scales the service in response to demand, ensuring robust performance during traffic surges.
 
+## Autoscaling Email Processor
+
+The `email-processor` container app is configured to autoscale based on the number of messages in the Azure Service Bus. The `email-processor` container app scales out when the number of messages in the Service Bus exceeds a certain threshold.
+
+![autoscale-settings](./docs/assets/email-processor-scaling-rule.png)
+
+To simulate the autoscaling, follow the steps below:
+
+1. Navigate to Azure App Configuration and change the `CONTOSO_SUPPORT_GUIDE_REQUEST_SERVICE` value to `demo-load`.
+
+    ![edit-application-setting](./docs/assets/edit-application-setting-demo-load.png)
+
+1. Restart the Web App in App Service.
+
+    ![restart-app-service](./docs/assets/restart-app-service.png)
+
+1. Send an email following the steps in the Strangler Fig Pattern section.
+
+1. Navigate to the Azure Service Bus in the Azure portal. You will see a spike in incoming messages.
+
+    ![service-bus-incoming-messages](./docs/assets/service-bus-request-queue-load-demo.png)
+
+1. Navigate to the Container App in the Azure portal and click on the `Revisions and replicas` link under `Application` in the left navigation. Finally, click on the `Replicas` tab. You will see that the number of replicas has increased.
+
+    ![container-app-revisions-replicas](./docs/assets/container-app-revisions-replicas.png)
+
 Integrating Azure Service Bus with queue-based load leveling empowers your Java applications with unparalleled scalability and resilience. Offloading critical operations to containerized services like Azure Container Apps keeps your system performing at its best, even under heavy loads.
 Embracing modern patterns like queue-based load leveling is key to building scalable, resilient applications. Integrating tools like Azure Service Bus into your Java projects can transform the way your systems handle load and scale - get started now with the [Modern Web App Pattern for Java](https://github.com/Azure/modern-web-app-pattern-java)
 
