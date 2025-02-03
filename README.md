@@ -133,3 +133,7 @@ Integrating Azure Service Bus with queue-based load leveling empowers your Java 
 Embracing modern patterns like queue-based load leveling is key to building scalable, resilient applications. Integrating tools like Azure Service Bus into your Java projects can transform the way your systems handle load and scale - get started now with the [Modern Web App Pattern for Java](https://github.com/Azure/modern-web-app-pattern-java)
 
 ---
+
+## Deep Dive
+
+For a more detailed look into the architecture, components, and workflow of the email processor app, check out the [demo.md](demo.md) file. It includes code snippets and explanations for key classes like `EmailProducer`, `EmailConsumer`, and `LangChainLLMReportGenerator`, as well as an explanation of the role of Azure Service Bus in the queue-based load leveling pattern.
