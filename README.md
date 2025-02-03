@@ -151,7 +151,7 @@ To simulate the autoscaling, follow the steps below:
 
     ![restart-app-service](./docs/assets/restart-app-service.png)
 
-1. Send an email following the steps in the Strangler Fig Pattern section of the reference application - https://github.com/Azure/modern-web-app-pattern-java/blob/main/docs/SranglerFig.md.
+1. Send an email following the steps [in the Strangler Fig Pattern section of the reference application - https://github.com/Azure/modern-web-app-pattern-java/blob/main/docs/SranglerFig.md](https://github.com/Azure/modern-web-app-pattern-java/blob/main/demo.md).
 
 1. Navigate to the Azure Service Bus in the Azure portal. You will see a spike in incoming messages.
 
