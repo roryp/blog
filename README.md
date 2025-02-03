@@ -161,6 +161,8 @@ To simulate the autoscaling, follow the steps below:
 
     ![container-app-revisions-replicas](./docs/assets/container-app-revisions-replicas.png)
 
+## Conclusion
+
 Integrating Azure Service Bus with queue-based load leveling empowers your Java applications with unparalleled scalability and resilience. Offloading critical operations to containerized services like Azure Container Apps keeps your system performing at its best, even under heavy loads.
 Embracing modern patterns like queue-based load leveling is key to building scalable, resilient applications. Integrating tools like Azure Service Bus into your Java projects can transform the way your systems handle load and scale - get started now with the [Modern Web App Pattern for Java](https://github.com/Azure/modern-web-app-pattern-java)
 
