@@ -39,7 +39,7 @@ public class QueueLoadLevelingWithVirtualThreads {
         // Generate and display the final performance report.
         LangChainLLMReportGenerator reportGenerator = new LangChainLLMReportGenerator();
         System.out.println("Generating Report");
-        String report = reportGenerator.generateReport(factory.getMonitor());
-        System.out.println("Final Report: " + report);
+        reportGenerator.generateReport(factory.getMonitor());
+        System.out.println("Finished Report");
     }
 }
