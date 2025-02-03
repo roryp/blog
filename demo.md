@@ -145,13 +145,3 @@ public class LangChainLLMReportGenerator {
 2. **EmailConsumer** processes email tasks asynchronously.
 3. **StatusMonitor** tracks the status of email processing.
 4. **LangChainLLMReportGenerator** generates a performance report.
-
-## Role of Azure Service Bus
-
-Azure Service Bus plays a crucial role in the queue-based load leveling pattern. It decouples the production and consumption of tasks, ensuring that the system remains responsive even during traffic spikes. Here are some key benefits:
-
-- **Decoupling**: Offloads message processing to keep the main application responsive.
-- **Scalability**: Automatically adjusts to workload changes without overprovisioning.
-- **Resilience**: Features like message persistence, automatic retries, and dead-letter queues ensure the system can handle failures gracefully.
-
-By integrating Azure Service Bus, the email processor app achieves enhanced scalability, resilience, and responsiveness.
