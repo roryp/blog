@@ -74,6 +74,10 @@ Before diving in, ensure you have:
    ```
    A Swing-based UI will appear with live metrics, and after a brief simulation, an LLM-generated performance report will be displayed in your console.
 
+## Deep Dive
+
+For a more detailed look into the architecture, components, and workflow of the email processor app, check out the [demo.md](demo.md) file. It includes code snippets and explanations for key classes like `EmailProducer`, `EmailConsumer`, and `LangChainLLMReportGenerator`, as well as an explanation of the role of Azure Service Bus in the queue-based load leveling pattern.
+
 ---
 
 ## Azure Service Bus: The Messaging Backbone for Scalability
@@ -134,6 +138,4 @@ Embracing modern patterns like queue-based load leveling is key to building scal
 
 ---
 
-## Deep Dive
 
-For a more detailed look into the architecture, components, and workflow of the email processor app, check out the [demo.md](demo.md) file. It includes code snippets and explanations for key classes like `EmailProducer`, `EmailConsumer`, and `LangChainLLMReportGenerator`, as well as an explanation of the role of Azure Service Bus in the queue-based load leveling pattern.
