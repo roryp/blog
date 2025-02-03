@@ -133,7 +133,7 @@ With Kubernetes-based Event Driven Autoscaling (KEDA), the system scales resourc
 - **Dynamic Scaling:**  
   KEDA automatically scales the service in response to demand, ensuring robust performance during traffic surges.
 
-## Autoscaling Email Processor
+## MWA reference application Autoscaling Email Processor
 
 The `email-processor` container app is configured to autoscale based on the number of messages in the Azure Service Bus. The `email-processor` container app scales out when the number of messages in the Service Bus exceeds a certain threshold.
 
