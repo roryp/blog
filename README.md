@@ -80,7 +80,7 @@ For a more detailed look into the architecture, components, and workflow of the 
 
 ---
 
-## Azure Service Bus: The Messaging Backbone for Scalability
+## Next Steps: Azure Service Bus
 
 The basic example does a lot but still suffers from coupling, scalability, and resilience issues.
 While in-memory queues are great for prototyping, enterprise-grade applications need a messaging backbone that can handle heavy loads. **Azure Service Bus** is exactly that—it decouples message processing from your core application logic, ensuring responsiveness even under high traffic. Here’s why it’s a game changer:
