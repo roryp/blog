@@ -18,10 +18,10 @@ This sample application is a playground for implementing the Queue-Based Load Le
   Multiple producers generate email tasks—each with a unique ID—and enqueue them into a shared `BlockingQueue`. On the other side, consumers process these tasks asynchronously. A “poison pill” mechanism ensures that consumer threads terminate gracefully when their work is done.
 
 - **Real-Time Status Dashboard:**  
-  A sleek Swing-based UI updates every 500 milliseconds, showing live metrics like current queue length, total emails produced, processed counts, and the number of active threads. It’s a great way to visualize your system’s heartbeat.
+  A Swing-based UI updates every 500 milliseconds, showing live metrics like current queue length, total emails produced, processed counts, and the number of active threads.
 
 - **LLM-Generated Performance Report:**  
-  At the end of the simulation, the application gathers performance metrics and crafts a prompt for LangChain4j. Using Ollama with the phi4 model, it then produces a natural language report summarizing overall performance. Think of it as a performance review for your system!
+  At the end of the simulation, the application gathers performance metrics and crafts a prompt for LangChain4j. Using Ollama with the phi4 model, it then streams a natural language report summarizing overall performance.
 
 - **Modern Concurrency with Java 21:**  
   With Java 21’s virtual threads, the application handles concurrency efficiently, cutting down on the traditional overhead and making your code both cleaner and faster.
