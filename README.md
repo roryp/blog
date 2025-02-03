@@ -135,6 +135,8 @@ With Kubernetes-based Event Driven Autoscaling (KEDA), the system scales resourc
 
 ## MWA reference application Autoscaling Email Processor
 
+Next, let’s explore how the Contoso Fiber MWA reference application uses Azure Service Bus and Azure Container Apps to autoscale the email processor based on the number of messages in the queue.
+
 The `email-processor` container app is configured to autoscale based on the number of messages in the Azure Service Bus. The `email-processor` container app scales out when the number of messages in the Service Bus exceeds a certain threshold.
 
 ![autoscale-settings](./docs/assets/email-processor-scaling-rule.png)
