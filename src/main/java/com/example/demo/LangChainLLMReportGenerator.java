@@ -21,6 +21,7 @@ public class LangChainLLMReportGenerator {
             .baseUrl("http://localhost:11434") // Set the URL for the API endpoint
             .modelName("phi4") // Specify the language model to use
             .temperature(0.7) // Set the randomness/creativity level for generated content
+            .timeout(null)
             .build();
 
         // Generate report by streaming the response using a custom handler

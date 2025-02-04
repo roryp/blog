@@ -10,13 +10,39 @@
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
   </properties>
+<dependencyManagement>
   <dependencies>
-<dependency>
+    <!-- Import the LangChain4j BOM for version management -->
+    <dependency>
+      <groupId>dev.langchain4j</groupId>
+      <artifactId>langchain4j-bom</artifactId>
+      <version>1.0.0-alpha1</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+
+<dependencies>
+  <!-- LangChain4j Ollama Integration -->
+  <dependency>
     <groupId>dev.langchain4j</groupId>
     <artifactId>langchain4j-ollama</artifactId>
-    <version>0.36.2</version>
-</dependency>
-  </dependencies>
+  </dependency>
+  
+  <!-- (Optional) If you wish to directly reference core functionality -->
+  <dependency>
+    <groupId>dev.langchain4j</groupId>
+    <artifactId>langchain4j-core</artifactId>
+  </dependency>
+  
+  <!-- You can also declare OkHttp explicitly if you wish to customize or update it -->
+  <dependency>
+    <groupId>com.squareup.okhttp3</groupId>
+    <artifactId>okhttp</artifactId>
+  </dependency>
+</dependencies>
+
   <build>
     <plugins>
       <plugin>
