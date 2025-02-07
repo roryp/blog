@@ -16,7 +16,7 @@ This is where **Azure Service Bus** comes into play. As a robust, cloud-native m
 
 ## Overview of the Sample Application
 
-We'll demonstrate a sample application that implements the Queue-Based Load Leveling pattern in Java. Here's what it entails:
+We'll demonstrate the pattern with a sample application that implements the Queue-Based Load Leveling pattern in Java. Here's what it entails:
 
 - **Email Simulation:**  
   Multiple producers generate email tasks—each with a unique ID—and enqueue them into a shared `BlockingQueue`. Consumers process these tasks asynchronously. A “poison pill” mechanism ensures that consumer threads terminate gracefully when their work is done.
