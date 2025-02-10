@@ -78,7 +78,7 @@ Before diving in, ensure you have:
 2. **Launch the Application:**  
    Start the application with:
    ```bash
-   java -jar target/your-app.jar
+   java -jar target/QueueLoadLevelingWithVirtualThreads.jar
    ```
    A simple UI will appear with live metrics, and after a brief simulation, an LLM-generated performance report will be displayed in your console.
 
