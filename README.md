@@ -1,6 +1,6 @@
 # Queue-Based Load Leveling with Java and Azure Service Bus
 
-**Today, we’re exploring the **Queue-Based Load Leveling** pattern—a powerful method for smoothing out workload spikes—using Java and Azure Service Bus. For a detailed look into the architecture, components, and workflow of the email processor app, check out the [demo.md](demo.md) file.**
+**Today, we’re exploring the **Queue-Based Load Leveling** pattern—a powerful method for smoothing out workload spikes—using Java and Azure Service Bus.**
 
 ![email simulation](email.webp)
 
