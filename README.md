@@ -47,7 +47,6 @@ Before diving in, ensure you have:
 - **Ollama:**  
   Install [Ollama](https://ollama.com/) and set up the phi4 model:
   ```bash
-  ollama pull phi4
   ollama run phi4
   ```
   Ensure the LLM server is accessible at `http://localhost:11434`.
@@ -71,7 +70,6 @@ Before diving in, ensure you have:
 1. **Start the LLM Service:**  
    Ensure Ollama is running:
    ```bash
-   ollama pull phi4
    ollama run phi4
    ```
 
