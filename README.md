@@ -55,7 +55,7 @@ Before diving in, ensure you have:
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/roryp/blog
+   git clone https://github.com/roryp/queue-load-leveling
    cd blog
    ```
 
